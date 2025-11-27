@@ -6,8 +6,11 @@
 
 目前妙算仍然处于内测和积极开发阶段，可能会存在各类功能缺陷与Bug，欢迎 [提交Issue](https://github.com/ZNetLink/miaosuan/issues/new) 向我们反馈问题，我们会尽快处理。
 
-[妙算平台](https://www.znetlink.com/saas)
-[文档中心](./docs/README.md)
+[妙算平台](https://www.znetlink.com/saas) 
+
+[文档中心](./docs/README.md) 
+
+[入门视频教程](https://www.bilibili.com/video/BV1uwSMBZE5Y/)
 
 -----
 
@@ -49,6 +52,7 @@
 | **智网妙算平台** | 在线仿真平台入口，注册/登录 | [点击访问](https://www.znetlink.com/saas)  |
 | **官方文档** | 包含快速入门、API 参考、建模指南 | [查阅文档](./docs/README.md) |
 | **模型市场** | 经典网络模型、AI 训练示例代码 | [模型市场](https://github.com/ZNetLink/miaosuan-models-index) |
+| **入门视频教程**| 包括最基本的概念讲解和操作演示  | [点击查看](https://www.bilibili.com/video/BV1uwSMBZE5Y/) |
 
 -----
 
