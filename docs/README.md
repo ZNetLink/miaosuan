@@ -7,6 +7,7 @@
 API参考手册：
 - [核心API](./engine-api.md)
 - [MMS API](./mms-api.md)
+- [本地开发工具](./miaosuan-cli.md)
 
 ---
 
