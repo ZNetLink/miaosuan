@@ -32,9 +32,13 @@
 
 ### 下载地址
 
-当前最新版本：v0.1.3
+当前最新版本：v0.2.0
 
-[蓝奏云下载](https://www.ilanzou.com/s/daNnyoLF)
+[蓝奏云下载](https://www.ilanzou.com/s/3hon0K75)
+
+版本历史：
+- v0.2.0 [下载](https://www.ilanzou.com/s/3hon0K75) 支持提交任务时使用场景中保存的参数信息，并支持通过命令行传入新的参数覆盖场景参数 
+- v0.1.3 [下载](https://www.ilanzou.com/s/daNnyoLF) 实现基本功能 
 
 ### 安装
 1. 命令行工具安装：
@@ -271,6 +275,8 @@ miaosuan pull
 ```bash
 cd <workspace-root>
 miaosuan run demo_scenario
+# 或通过命令行追加 / 覆盖仿真参数（可重复多次传入 --param，支持“多组参数”）：
+miaosuan run demo_scenario --param duration=120 --param "stats:filters=[\"udp.*\",\"tcp.*\"]"
 ```
 
 执行流程：
@@ -281,12 +287,14 @@ miaosuan run demo_scenario
      - 是否先执行 `push` 同步到服务器；
    - 若选择 `y/yes`，则先执行一次 `miaosuan push`；
    - 若选择 `N` 或直接回车，则继续使用服务器上一次同步的代码运行仿真；
-3. 尝试从 `/models/scenarios/<scenario_name>.scen.m` 读取场景配置，解析其中的 `statsFilters` 字段（若存在），并附加到提交参数中；
+3. 尝试从 `/models/scenarios/<scenario_name>.scen.m` 读取场景配置，并解析其中与妙算引擎相关的仿真参数：
+   - `simParams.MIAOSUAN`：作为妙算引擎的仿真参数对象，其内部的键值对会“原样”合并到任务参数中（不做额外转换或默认值填充）；
+   - `statsFilters`：场景统计量过滤配置（字符串数组），在提交时映射为任务参数中的 `stats:filters`（如存在）。
 4. 调用 `/task/submit` 提交仿真任务，参数包括：
    - `scenarioName`
    - `workspace`（当前 Workspace ID）
-   - `duration`（默认 600 秒）
-   - 以及 `stats:filters`（若从场景文件中解析到）；
+   - 从场景文件 `simParams.MIAOSUAN` 中读取并合并的仿真参数（如果存在）
+   - 以及 `stats:filters`（若从场景文件中解析到非空数组）；
 5. 每隔 2 秒轮询任务状态 `/task/{id}`：
    - 状态变化时在终端打印；
 6. 当任务进入 `RUNNING`、`COMPLETED` 或 `FAILED` 状态时，开始轮询 `/task/{id}/logs` 输出日志内容（增量打印）；
@@ -411,4 +419,3 @@ miaosuan --version
    ```bash
    miaosuan update-stub
    ```
-
