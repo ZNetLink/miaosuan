@@ -15,6 +15,8 @@
 - 本地增量上传到云端（`miaosuan push`）
 - 从云端拉取最新代码（`miaosuan pull`）
 - 一键运行妙算云端仿真任务并回显日志（`miaosuan run`）
+- 为云端仿真任务开启 VS Code 远程调试隧道（`miaosuan debug`）
+- 直接在 `run` 时开启调试并自动启动隧道（`miaosuan run --debug`）
 - 自动维护模型文件中的 `pythonPackageFiles` 列表
 - 自动创建 Python 虚拟环境（使用 `uv venv`）
 - 安装/升级 `miaosuan-stub` 提示包（`miaosuan update-stub`）
@@ -32,11 +34,12 @@
 
 ### 下载地址
 
-当前最新版本：v0.2.0
+当前最新版本：v0.3.1
 
-[蓝奏云下载](https://www.ilanzou.com/s/3hon0K75)
+[蓝奏云下载](https://www.ilanzou.com/s/dFtnWHPh)
 
 版本历史：
+- v0.3.1 [下载](https://www.ilanzou.com/s/dFtnWHPh) 增加远程调试功能，支持在创建仿真任务时，通过命令行参数开启调试隧道，并通过本地VSCode等IDE实现远程调试仿真任务中的Python代码。
 - v0.2.0 [下载](https://www.ilanzou.com/s/3hon0K75) 支持提交任务时使用场景中保存的参数信息，并支持通过命令行传入新的参数覆盖场景参数 
 - v0.1.3 [下载](https://www.ilanzou.com/s/daNnyoLF) 实现基本功能 
 
@@ -81,7 +84,7 @@ API Key (通过网页获取，格式类似 <id>.<secret>):
 }
 ```
 
-> 提示：API Key 需要在网页端的“【用户管理】-【API Key 管理】”菜单中申请。
+> 提示：API Key 需要在网页端的“API Key 管理”中申请。
 
 ### 自动更新检查
 
@@ -155,6 +158,8 @@ dist/
   miaosuan push                                将本地模型代码文件修改增量上传到服务器
   miaosuan pull                                从服务器拉取模型代码的最新文件
   miaosuan run <scenario_name>                 运行妙算仿真任务并回显日志
+    --debug --debug-port --debug-ttl-seconds   在运行时启用调试并自动启动本地隧道
+  miaosuan debug <task_id>                     为指定任务开启远程调试隧道（VS Code attach 到本地端口）
   miaosuan update-stub                         更新当前 workspace 虚拟环境中的 miaosuan-stub 包
   miaosuan check-update                        手动检查 CLI 是否有新版本
   miaosuan version                             显示 CLI 版本信息
@@ -305,7 +310,56 @@ miaosuan run demo_scenario --param duration=120 --param "stats:filters=[\"udp.*\
 
 ---
 
-### 5. `miaosuan update-stub`
+### 5. `miaosuan debug <task_id>`
+
+为云端妙算仿真任务开启远程调试隧道（VS Code / PyCharm 等 IDE 可通过本地端口 attach）。
+
+> 注意：该任务需要在提交时启用调试（见下方“如何启用调试”）。若启用了 `waitForClient`，仿真会在启动阶段暂停等待 attach。
+
+```bash
+miaosuan debug <task-id>
+# 可选：修改本地监听端口 / 会话有效期
+miaosuan debug <task-id> --port 5678 --ttl-seconds 1800
+```
+
+未传 `--ttl-seconds` 时，使用任务参数 `debug:TtlSeconds`（若有）或服务端默认值。
+
+如何启用调试（提交任务时设置仿真参数）：
+
+```bash
+# 方式 1：直接使用 run 的调试开关（推荐）
+miaosuan run demo_scenario --debug
+
+# 方式 2：显式传入仿真参数（兼容 Web 端等场景）
+miaosuan run demo_scenario --param debug=1
+# 可选：让仿真启动后阻塞等待 attach（默认 true）
+miaosuan run demo_scenario --param debug=1 --param debug:waitForClient=1
+# 可选：调试会话有效期（秒）
+miaosuan run demo_scenario --param debug=1 --param debug:TtlSeconds=3600
+```
+
+VS Code `launch.json` 示例（最小配置）：
+
+```json
+{
+  "name": "Attach Miaosuan",
+  "type": "python",
+  "request": "attach",
+  "connect": { "host": "127.0.0.1", "port": 5678 },
+  "pathMappings": [
+    {
+      "localRoot": "${workspaceFolder}/pycodes",
+      "remoteRoot": "/sim/run/models/pycodes"
+    }
+  ]
+}
+```
+
+`remoteRoot` 以任务日志中打印的 “调试源码目录 (VS Code remoteRoot)” 为准；使用 Docker 运行时推荐固定为 `/sim/run/models/pycodes`，避免因 taskId 变化频繁调整映射。
+
+---
+
+### 6. `miaosuan update-stub`
 
 miaosuan-stub 包是妙算引擎的 Python 接口提示包，包含类型定义与接口说明，方便在本地 IDE 中获得代码补全与静态检查支持。
 
@@ -326,7 +380,7 @@ uv pip install --index=https://pypi.znetlink.com/simple --upgrade miaosuan-stub
 
 ---
 
-### 6. `miaosuan check-update`
+### 7. `miaosuan check-update`
 
 手动检查 CLI 是否有新版本：
 
@@ -347,7 +401,7 @@ miaosuan check-update
 
 ---
 
-### 7. `miaosuan version`
+### 8. `miaosuan version`
 
 显示当前 CLI 版本：
 
