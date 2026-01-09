@@ -8,9 +8,10 @@ ms.sim_time()
 
 ## 模型管理（`model_manager`）
 
-- `init_model_manager(bases: Iterable[str], token: str) -> None`
+- `init_model_manager(bases: Iterable[str], token: str, workspace: str) -> None`
   - 参数 `bases`: 模型仓库的本地路径或 HTTP/HTTPS URL；可同时配置多个基址。
   - 参数 `token`: 访问远程模型仓库时附带的 JWT 字符串，可为空。
+  - 参数 `workspace`: 访问远程模型仓库时附带的 workspace id，可为空字符串。
   - 说明: 初始化模型加载器并清空缓存，仿真启动前调用一次。
 - `register_process_model(name: str, generator: Callable[[], FsmProcess]) -> None`
   - 参数 `name`: 进程模型名称，需要与场景模型中的引用一致。
@@ -20,6 +21,29 @@ ms.sim_time()
   - 参数 `name`: 流水线阶段模型名称。
   - 参数 `stage`: 阶段实现对象或可调用；若可调用会被包装为阶段对象。
   - 说明: 注册流水线阶段模型，供模型管理器按名称查询。
+
+## 调制解调曲线（`modulation`）
+
+调制解调曲线模型用于描述 `SNR -> BER` 的映射关系，模型文件后缀为 `.md.m`，内容为标准 JSON：
+```json
+{
+  "x": [-10, -9, -8],
+  "y": [0.33, 0.32, 0.30]
+}
+```
+其中 `x` 表示信噪比 `snr`，`y` 表示误比特率 `ber`。引擎侧会对输入数据做校验（`x/y` 等长、非空、数值有限；`x` 不允许重复）。
+
+- `mod_table_load(name: str) -> ModulationHandle`
+  - 参数 `name`: 调制解调模型名称（不含后缀），实际加载文件为 `${name}.md.m`。
+  - 返回: 可用于查询的 `ModulationHandle`。
+- `mod_ber_get(handle: ModulationHandle, snr: float) -> float`
+  - 说明: 根据 `snr` 从曲线中查询 `ber`（线性插值）。当 `snr` 小于最小 `x` 时返回最小 `x` 对应的 `y`，大于最大 `x` 时同理。
+  - 示例：
+    ```python
+    import miaosuan as ms
+    h = ms.mod_table_load("models/modulations/qpsk")
+    ber = ms.mod_ber_get(h, snr=3.5)
+    ```
 
 ## 仿真驱动与时间管理（`simulation`, `api`）
 
