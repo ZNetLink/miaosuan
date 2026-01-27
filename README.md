@@ -51,7 +51,7 @@
 | **官方文档** | 包含快速入门、API 参考、建模指南 | [查阅文档](./docs/README.md) |
 | **模型市场** | 经典网络模型、AI 训练示例代码 | [模型市场](https://github.com/ZNetLink/miaosuan-models-index) |
 | **入门视频教程**| 包括最基本的概念讲解和操作演示  | [点击查看](https://www.bilibili.com/video/BV1uwSMBZE5Y/) |
-
+| **更新日志** | 平台功能更新与发布说明 | [查看日志](./changelog.md) |
 -----
 
 ## 🛠️ 反馈与支持 (Support & Issues)

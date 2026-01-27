@@ -34,14 +34,30 @@
 
 ### 下载地址
 
-当前最新版本：v0.3.1
+#### 1. Miaosuan CLI
 
-[蓝奏云下载](https://www.ilanzou.com/s/dFtnWHPh)
+下载地址： [蓝奏云](https://znetlink.lanzoue.com/b0j17umkf)  密码:fbet
+
+当前最新版本：**v0.3.1**, 点击对应平台链接可直接下载：
+ - Windows：https://znetlink.lanzoue.com/imf4Q3h3qb0b
+ - MacOS: https://znetlink.lanzoue.com/iMZdB3h3qd8b
+ - Linux: https://znetlink.lanzoue.com/iWapT3h3qdbe
+
 
 版本历史：
-- v0.3.1 [下载](https://www.ilanzou.com/s/dFtnWHPh) 增加远程调试功能，支持在创建仿真任务时，通过命令行参数开启调试隧道，并通过本地VSCode等IDE实现远程调试仿真任务中的Python代码。
-- v0.2.0 [下载](https://www.ilanzou.com/s/3hon0K75) 支持提交任务时使用场景中保存的参数信息，并支持通过命令行传入新的参数覆盖场景参数 
-- v0.1.3 [下载](https://www.ilanzou.com/s/daNnyoLF) 实现基本功能 
+- v0.3.1 增加远程调试功能，支持在创建仿真任务时，通过命令行参数开启调试隧道，并通过本地VSCode等IDE实现远程调试仿真任务中的Python代码。
+- v0.2.0 支持提交任务时使用场景中保存的参数信息，并支持通过命令行传入新的参数覆盖场景参数 
+- v0.1.3 实现基本功能 
+
+
+#### 2. VS Code 扩展
+
+下载地址：[蓝奏云](https://znetlink.lanzoue.com/b0j17umje)  密码:3ylj
+
+
+当前最新版本：[v0.3.0](https://znetlink.lanzoue.com/i1ayc3h3q0za)
+
+
 
 ### 安装
 1. 命令行工具安装：
