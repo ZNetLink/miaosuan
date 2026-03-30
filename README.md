@@ -12,6 +12,14 @@
 
 [入门视频教程](https://www.bilibili.com/video/BV1uwSMBZE5Y/)
 
+## 📚 文档入口
+
+- [快速开始与模型开发](./docs/README.md)
+- [引擎 API 参考](./docs/engine-api.md)
+- [MMS API 参考](./docs/mms-api.md)
+- [本地开发 CLI](./docs/miaosuan-cli.md)
+- [更新日志](./changelog.md)
+
 -----
 
 ## 📖 简介 (Introduction)
@@ -48,7 +56,7 @@
 | 资源名称 | 说明 | 链接 |
 | :--- | :--- | :--- |
 | **智网妙算平台** | 在线仿真平台入口，注册/登录 | [点击访问](https://www.znetlink.com/saas)  |
-| **官方文档** | 包含快速入门、API 参考、建模指南 | [查阅文档](./docs/README.md) |
+| **官方文档** | 包含快速开始、模型开发、API 参考与 CLI 说明 | [查阅文档](./docs/README.md) |
 | **模型市场** | 经典网络模型、AI 训练示例代码 | [模型市场](https://github.com/ZNetLink/miaosuan-models-index) |
 | **入门视频教程**| 包括最基本的概念讲解和操作演示  | [点击查看](https://www.bilibili.com/video/BV1uwSMBZE5Y/) |
 | **更新日志** | 平台功能更新与发布说明 | [查看日志](./changelog.md) |

@@ -83,7 +83,6 @@ Scenario（场景）
         def should_send(self) -> bool:
             return True
     ```
-
 - `@state_enter(state: str, begin: bool = False)`（方法装饰器）
   - 参数 `state`: 所属状态名称。
   - 参数 `begin`: 若为 `True`，标记该状态为 FSM 的初始状态。
@@ -109,6 +108,48 @@ Scenario（场景）
     def generic_wireless_closure(packet) -> None:
         ...
     ```
+
+---
+
+## 天线方向图（`antenna`）
+
+天线方向图模型用于描述 `theta / phi -> gain(dBi)` 的映射关系，模型文件后缀为 `.ant.m`，内容为 MessagePack 编码对象。当前约定与 `znetlink/lantu#210` 一致：
+
+- `meta`: 元信息（`version`、`manufacturer`、`model`、`frequency_mhz`、`electrical_tilt`、`origin_type`、`boresight_azimuth`、`boresight_polar`）
+- `data.format`: 固定为 `grid_180x360`
+- `data.unit`: 固定为 `dBi`
+- `data.matrix_payload`: `180 * 360` 个 `Float32` 组成的二进制字节流，索引公式为 `theta * 360 + phi`
+
+其中：
+
+- `theta`: 取值 `0..179`，`0` 表示天顶，`90` 表示水平，`179` 表示地底
+- `phi`: 取值 `0..359`，`0` 表示正北，顺时针增长
+
+- `ant_model_load(name: str) -> AntennaHandle`
+  - 参数 `name`: 天线模型名称（不含后缀），实际加载文件为 `${name}.ant.m`。
+  - 返回: 可用于查询增益的 `AntennaHandle`。
+- `ant_gain_get(handle: AntennaHandle, theta: float, phi: float) -> float`
+  - 说明: 根据 `theta/phi` 查询增益值。当前 phase-1 采用 1 度分辨率最近邻查表；`theta` 要求在 `[0, 179]` 范围内，`phi` 会按 360 度周期自动归一化。
+  - 示例：
+
+    ```python
+    import miaosuan as ms
+    h = ms.ant_model_load("models/antennas/APro-3500")
+    gain = ms.ant_gain_get(h, theta=90, phi=15)
+    ```
+
+- `radio_antenna_point_info_get(antenna: SimObj | int) -> Optional[Tuple[float, float]]`
+  - 参数 `antenna`: 天线对象或对象 ID。
+  - 返回: `(polar, azimuth)`；若无法推导指向则返回 `None`。
+  - 说明: 返回天线目标点在地心坐标系下的指向角。`polar` 范围为 `[-90, 90]`，`+90` 表示正 `z` 方向；`azimuth` 范围为 `[0, 360)`。
+- `radio_antenna_angles_to_location_get(antenna: SimObj | int, x: float, y: float, z: float) -> Optional[Tuple[float, float]]`
+  - 参数 `x/y/z`: 目标位置的地心坐标（ECEF，单位米）。
+  - 返回: `(polar, azimuth)`；若天线无方向图、目标点与天线位置重合或无法推导天线坐标系，则返回 `None`。
+  - 说明: 返回目标位置在天线方向图坐标系下的指向角，其中 `polar` 对应方向图 `theta`（`[0, 180]`），`azimuth` 对应方向图 `phi`（`[0, 360)`）。计算时会同时考虑平台 `heading/pitch/roll`、天线 `antenna x/y/z` 偏移、天线自身的 `target location coordinate type` / `target *` 属性，以及模型 `meta` 中的 `boresight_azimuth` / `boresight_polar`。
+- `radio_antenna_gain_to_location_get(antenna: SimObj | int, x: float, y: float, z: float) -> float`
+  - 参数 `x/y/z`: 目标位置的地心坐标（ECEF，单位米）。
+  - 返回: 指定方向上的天线增益（dBi）；若天线无方向图或方向无意义，则返回 `0.0`。
+  - 说明: 该接口内部会先计算目标位置在天线方向图坐标系下的 `(polar, azimuth)`，再按方向图 `theta/phi` 直接调用 `ant_gain_get`；非零 `boresight_azimuth` / `boresight_polar` 会参与映射。
 
 ---
 
@@ -262,7 +303,7 @@ Scenario（场景）
 
 ## 仿真对象（`simobj`）
 
-- 类型常量：`OBJ_TYPE_PROCESSOR`、`OBJ_TYPE_QUEUE`、`OBJ_TYPE_RA_RX`、`OBJ_TYPE_RA_TX`、`OBJ_TYPE_RA_TX_CH`、`OBJ_TYPE_RA_RX_CH`、`OBJ_TYPE_NODE`、`OBJ_TYPE_PLATFORM`、`OBJ_TYPE_SCENARIO`、`OBJ_TYPE_P2P_TX_CH`、`OBJ_TYPE_P2P_RX_CH`、`OBJ_TYPE_P2P_TX`、`OBJ_TYPE_P2P_RX`、`OBJ_TYPE_LINK`。
+- 类型常量：`OBJ_TYPE_PROCESSOR`、`OBJ_TYPE_QUEUE`、`OBJ_TYPE_RA_RX`、`OBJ_TYPE_RA_TX`、`OBJ_TYPE_RA_TX_CH`、`OBJ_TYPE_RA_RX_CH`、`OBJ_TYPE_NODE`、`OBJ_TYPE_PLATFORM`、`OBJ_TYPE_SCENARIO`、`OBJ_TYPE_P2P_TX_CH`、`OBJ_TYPE_P2P_RX_CH`、`OBJ_TYPE_P2P_TX`、`OBJ_TYPE_P2P_RX`、`OBJ_TYPE_LINK`、`OBJ_TYPE_ANTENNA`。
 
 - **`SimObj`**（仿真对象基类）
   - `get_id() -> int`: 返回对象 ID。
