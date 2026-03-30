@@ -38,13 +38,14 @@
 
 下载地址： [蓝奏云](https://znetlink.lanzoue.com/b0j17umkf)  密码:fbet
 
-当前最新版本：**v0.3.1**, 点击对应平台链接可直接下载：
- - Windows：https://znetlink.lanzoue.com/imf4Q3h3qb0b
- - MacOS: https://znetlink.lanzoue.com/iMZdB3h3qd8b
- - Linux: https://znetlink.lanzoue.com/iWapT3h3qdbe
+当前最新版本：**v0.3.2**, 点击对应平台链接可直接下载：
+ - Windows：https://znetlink.lanzoue.com/iPIVl3kqszib
+ - MacOS: https://znetlink.lanzoue.com/iWj4V3kqt1fa
+ - Linux: https://znetlink.lanzoue.com/iJnN73kqt1id
 
 
 版本历史：
+- v0.3.2 增加 `miaosuan run -y` 自动确认上传选项，适合脚本化和自动化执行场景。
 - v0.3.1 增加远程调试功能，支持在创建仿真任务时，通过命令行参数开启调试隧道，并通过本地VSCode等IDE实现远程调试仿真任务中的Python代码。
 - v0.2.0 支持提交任务时使用场景中保存的参数信息，并支持通过命令行传入新的参数覆盖场景参数 
 - v0.1.3 实现基本功能 
@@ -289,25 +290,29 @@ miaosuan pull
 
 ---
 
-### 4. `miaosuan run <scenario_name>`
+### 4. `miaosuan run <scenario_name>` [-y|--yes]
 
 触发云端妙算仿真任务，并在终端回显日志。
 
 ```bash
 cd <workspace-root>
 miaosuan run demo_scenario
-# 或通过命令行追加 / 覆盖仿真参数（可重复多次传入 --param，支持“多组参数”）：
-miaosuan run demo_scenario --param duration=120 --param "stats:filters=[\"udp.*\",\"tcp.*\"]"
+# 或通过命令行追加 / 覆盖仿真参数（可重复多次传入 --param，支持”多组参数”）：
+miaosuan run demo_scenario --param duration=120 --param “stats:filters=[\”udp.*\”,\”tcp.*\”]”
+# 或使用 -y 自动确认本地修改推送，无需交互式确认：
+miaosuan run demo_scenario -y
 ```
 
 执行流程：
 
-1. 对当前本地文件做快照，与 `file_state.json` 对比；
-2. 如果发现本地有新增/修改/删除：
-   - 在终端提示“检测到本地有修改”，并询问：
+1. 解析命令行参数；若指定了 `-y` 或 `--yes`，则跳过交互确认步骤。
+2. 对当前本地文件做快照，与 `file_state.json` 对比；
+3. 如果发现本地有新增/修改/删除：
+   - 若已指定 `-y`（自动确认），则直接自动执行一次 `miaosuan push`；
+   - 否则在终端提示”检测到本地有修改”，并询问：
      - 是否先执行 `push` 同步到服务器；
-   - 若选择 `y/yes`，则先执行一次 `miaosuan push`；
-   - 若选择 `N` 或直接回车，则继续使用服务器上一次同步的代码运行仿真；
+     - 若选择 `y/yes`，则先执行一次 `miaosuan push`；
+     - 若选择 `N` 或直接回车，则继续使用服务器上一次同步的代码运行仿真；
 3. 尝试从 `/models/scenarios/<scenario_name>.scen.m` 读取场景配置，并解析其中与妙算引擎相关的仿真参数：
    - `simParams.MIAOSUAN`：作为妙算引擎的仿真参数对象，其内部的键值对会“原样”合并到任务参数中（不做额外转换或默认值填充）；
    - `statsFilters`：场景统计量过滤配置（字符串数组），在提交时映射为任务参数中的 `stats:filters`（如存在）。
