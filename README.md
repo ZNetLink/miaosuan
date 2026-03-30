@@ -14,7 +14,6 @@
 
 ## 📚 文档入口
 
-- [快速开始与模型开发](./docs/README.md)
 - [引擎 API 参考](./docs/engine-api.md)
 - [MMS API 参考](./docs/mms-api.md)
 - [本地开发 CLI](./docs/miaosuan-cli.md)
